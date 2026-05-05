@@ -75,13 +75,10 @@ class GeneraticAgent:
         self.lock = threading.Lock()
         self.task_dir = None
         self.history = []
-        self.task_queue = queue.Queue()
-        self.is_running = False
-        self.stop_sig = False
-        self.llm_no = 0
-        self.inc_out = False
-        self.handler = None
-        self.verbose = True
+        self.task_queue = queue.Queue() 
+        self.is_running = False; self.stop_sig = False
+        self.llm_no = 0;  self.inc_out = False
+        self.handler = None; self.verbose = True
         self.load_llm_sessions()
 
     def load_llm_sessions(self):
@@ -188,7 +185,7 @@ class GeneraticAgent:
                 f"✅ session.{k} = {repr(v)}", max_str_len=500), 'source': 'system'})
             return None
         if raw_query.strip() == '/resume':
-            return r'扫temp/model_responses/下时间最近的10个文件(除本PID)，读取每个文件content后先replace("\\n","\n").replace("\\r","\r")统一为真换行，再用re.findall(r"<history>\n\[(?:USER|Agent)\].*?</history>", content, re.DOTALL)提取，取每文件最后一个匹配作为该会话内容，按mtime倒序，每个用一句话总结聊了什么让我选择；选定后再简单读该文件末尾作为聊天基础'
+            return r'帮我看看最近有哪些会话可以恢复。读model_responses/目录，按修改时间取最近10个文件，从每个文件里找最后一个<history>...</history>块，用一句话总结每个会话在聊什么，列表给我选。注意读文件后要把字面的\n替换成真换行才能正确匹配。'
         return raw_query
 
     def run(self):
@@ -204,14 +201,11 @@ class GeneraticAgent:
             rquery = smart_format(
                 raw_query.replace('\n', ' '), max_str_len=200)
             self.history.append(f"[USER]: {rquery}")
-
-            sys_prompt = get_system_prompt() + getattr(self.llmclient.backend,
-                                                       'extra_sys_prompt', '')
-            handler = GenericAgentHandler(
-                self, self.history, os.path.join(script_dir, 'temp'))
-            if self.handler and 'key_info' in self.handler.working:
-                ki = re.sub(r'\n\[SYSTEM\] 此为.*?工作记忆[。\n]*',
-                            '', self.handler.working['key_info'])  # 去旧
+            
+            sys_prompt = get_system_prompt() + getattr(self.llmclient.backend, 'extra_sys_prompt', '')
+            handler = GenericAgentHandler(self, self.history, os.path.join(script_dir, 'temp'))
+            if self.handler and 'key_info' in self.handler.working: 
+                ki = re.sub(r'\n\[SYSTEM\] 此为.*?工作记忆[。\n]*', '', self.handler.working['key_info'])  # 去旧
                 handler.working['key_info'] = ki
                 handler.working['passed_sessions'] = ps = self.handler.working.get(
                     'passed_sessions', 0) + 1
@@ -294,8 +288,7 @@ if __name__ == '__main__':
     threading.Thread(target=agent.run, daemon=True).start()
 
     if args.task:
-        agent.task_dir = d = os.path.join(script_dir, f'temp/{args.task}')
-        nround = ''
+        agent.task_dir = d = os.path.join(script_dir, f'temp/{args.task}'); nround = ''
         infile = os.path.join(d, 'input.txt')
         if args.input:
             os.makedirs(d, exist_ok=True)
@@ -322,6 +315,7 @@ if __name__ == '__main__':
                 break
             nround = nround + 1 if isinstance(nround, int) else 1
     elif args.reflect:
+        agent.peer_hint = False
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             'reflect_script', args.reflect)
