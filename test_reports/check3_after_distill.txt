@@ -1,0 +1,10 @@
+﻿
+Name                   Length LastWriteTime     
+----                   ------ -------------     
+global_mem_insight.txt   1561 2026/4/30 20:37:23
+global_mem.txt             24 2026/4/30 20:37:23
+ui_detect.py             4354 2026/4/30 17:01:30
+tmwebdriver_sop.md       8334 2026/4/30 17:01:30
+web_setup_sop.md         1316 2026/4/30 17:01:30
+
+
