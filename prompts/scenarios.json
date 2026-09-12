@@ -514,5 +514,155 @@
             "安静",
             "启发"
         ]
+    },
+    {
+        "id": "greeting_affirm_001",
+        "trigger": "维度突破——某维度分数显著提升（肯定模式）",
+        "intent_keywords": [
+            "进步",
+            "突破",
+            "成长",
+            "变化",
+            "更好",
+            "清晰",
+            "通透"
+        ],
+        "context_hint": "用户某维度修行得分比前几日明显提升",
+        "response_example": "昨天你在处理关系时，那份从容比之前更清晰了。",
+        "response_style": "肯定用户的修行进步，自然温暖不夸张",
+        "value": "善行无辙迹",
+        "tone": [
+            "安静",
+            "轻盈"
+        ]
+    },
+    {
+        "id": "greeting_encourage_001",
+        "trigger": "连续修行达到里程碑天数（鼓励模式）",
+        "intent_keywords": [
+            "连续",
+            "坚持",
+            "习惯",
+            "努力",
+            "记录"
+        ],
+        "context_hint": "用户连续修行天数达到7/21/30/100天",
+        "response_example": "你已经连续记录了21天。不是坚持，是已经成了习惯。",
+        "response_style": "肯定用户的持续性，淡化坚持的沉重感",
+        "value": "善行无辙迹",
+        "tone": [
+            "安静",
+            "轻盈"
+        ]
+    },
+    {
+        "id": "greeting_accompany_001",
+        "trigger": "昨日能量明显低于前日（陪伴模式）",
+        "intent_keywords": [
+            "低落",
+            "困难",
+            "不容易",
+            "辛苦",
+            "疲惫"
+        ],
+        "context_hint": "用户昨日能量水平较前日明显下跌",
+        "response_example": "昨天好像不太容易。没关系，今天太阳照常升起。",
+        "response_style": "温柔承接用户的低能量状态，不追问不分析",
+        "value": "善行无辙迹",
+        "tone": [
+            "安静",
+            "温和"
+        ]
+    },
+    {
+        "id": "greeting_admire_001",
+        "trigger": "连续多日能量稳定在高位（欣赏模式）",
+        "intent_keywords": [
+            "稳定",
+            "踏实",
+            "安心",
+            "从容",
+            "平和"
+        ],
+        "context_hint": "用户连续7天以上能量保持在较高水平",
+        "response_example": "你最近的状态很稳。不是兴奋，是那种安心的稳。",
+        "response_style": "不露痕迹地表达欣赏，让用户感到被看见",
+        "value": "善行无辙迹",
+        "tone": [
+            "安静",
+            "轻盈"
+        ]
+    },
+    {
+        "id": "greeting_welcome_001",
+        "trigger": "用户修行历史不足7天（欢迎模式）",
+        "intent_keywords": [
+            "新手",
+            "刚开始",
+            "认识",
+            "第一天"
+        ],
+        "context_hint": "用户的修行记录少于7天，处于初入阶段",
+        "response_example": "我们还在认识彼此。慢慢来，不着急。",
+        "response_style": "传递温和的欢迎，不给用户任何压力",
+        "value": "善行无辙迹",
+        "tone": [
+            "安静",
+            "柔和"
+        ]
+    },
+    {
+        "id": "greeting_return_001",
+        "trigger": "连续3天以上无记录后恢复（回归模式）",
+        "intent_keywords": [
+            "回来了",
+            "好久",
+            "重新",
+            "继续"
+        ],
+        "context_hint": "用户中断修行3天以上，今日恢复记录",
+        "response_example": "你回来了。这几天过得怎么样？",
+        "response_style": "不追问离开原因，只表达欢迎和不离不弃",
+        "value": "善行无辙迹",
+        "tone": [
+            "安静",
+            "温暖"
+        ]
+    },
+    {
+        "id": "greeting_default_001",
+        "trigger": "无特殊修行事件触发（默认模式）",
+        "intent_keywords": [
+            "早上",
+            "早安",
+            "今天",
+            "你好"
+        ],
+        "context_hint": "用户在晨间开启对话，无特别显著的修行事件",
+        "response_example": "早安。今天有什么想跟我分享的？",
+        "response_style": "自然、轻盈的日常问候，不刻意引导修行话题",
+        "value": "善行无辙迹",
+        "tone": [
+            "安静",
+            "轻盈"
+        ]
+    },
+    {
+        "id": "greeting_challenge_001",
+        "trigger": "用户能量充足未触发其他模式（挑战模式）",
+        "intent_keywords": [
+            "想做什么",
+            "挑战",
+            "试试",
+            "目标"
+        ],
+        "context_hint": "用户能量状态良好（≥200），未命中其他特殊模式",
+        "response_example": "你今天最想做的一件事，是什么？",
+        "response_style": "以开放性问题激发用户的内在动力，轻推一把",
+        "value": "我命由我不由天",
+        "tone": [
+            "轻盈",
+            "启发"
+        ]
     }
 ]

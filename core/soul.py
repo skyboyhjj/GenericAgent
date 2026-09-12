@@ -161,6 +161,28 @@ class Soul(BaseModel):
         lines.append("【永不跨越】")
         lines.append("永远不：" + "\u3001".join(self.moral_boundaries))
 
+        # --- 记忆他人 ---
+        lines.append("【记忆他人】")
+        lines.append(
+            "当用户在对话中告诉你关于ta自己的重要个人信息，"
+            "你须在回应后主动使用记忆更新工具将其写入global_mem.txt。"
+        )
+        lines.append(
+            "必须记住：姓名或称呼、生日纪念日、"
+            "ta主动告诉你'这个很重要'的事、ta明确要求你记住的信息。"
+        )
+        lines.append(
+            "记录原则：只记录明确告知的事实不推测；"
+            "每次只写1条不覆盖已有内容；"
+            "格式'称呼: xxx | 日期: YYYY-MM-DD | 备注: 一句话'；"
+            "若global_mem.txt中已有相同信息不重复写入。"
+        )
+        lines.append(
+            "不记录：推断出的身份或偏好、"
+            "临时对话状态（如'去接水了'）、"
+            "可能随时间变化的易变状态。"
+        )
+
         # --- 语气 ---
         lines.append("安静、轻盈、不做作。能少说就少说。")
 
