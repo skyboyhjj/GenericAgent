@@ -1,7 +1,7 @@
 # 上游同步 · 分叉治理诊断实录
 
 > **日期**：2026-09-12
-> **状态**：诊断完成（待执行改动收窄与对齐）
+> **状态**：阶段 2 一次性对齐已完成（`integration/upstream-merge` 分支合并提交 `b24f96c`）
 > **关联**：本仓库 `skyboyhjj/GenericAgent` ⇄ 上游 `lsdefine/GenericAgent`
 
 ---
@@ -129,7 +129,7 @@ memory/mem_scanner_sop.md
 |:---|:---|:---|
 | 0 备份冻结 | `--mirror` 镜像 + 打 tag `huihui-pre-sync-*` | 待办 |
 | 1 诊断 | 本实录 | ✅ 完成 |
-| 2 一次性对齐 | `integration/` 分支 `git merge upstream/main --no-ff` | 待办 |
+| 2 一次性对齐 | `integration/` 分支 `git merge upstream/main --no-ff` | ✅ 完成（`b24f96c`） |
 | 3 改动收窄 | 定制下沉至 `huihui/`、`wuxing/` 等独立目录 | **建议优先** |
 | 4 双轨 SLA | `main`≈上游 / `huihui`=全定制 | 待办 |
 | 6 自动化 | `tools/sync-upstream.ps1` + GitHub Actions 漂移提醒 | 待办 |
@@ -144,3 +144,35 @@ memory/mem_scanner_sop.md
 - **总体原则**：以我方（慧惠）定制为准；冲突时优先保留本仓库自研定制与品牌。
 - **前端 / 工具类**：上游对 `frontends/`（桌面宠物、各 IM 入口等）及纯工具类文件的更新，**在不影响核心的前提下不 merge**，保留差异并将对应文件标记为「已审阅 / 不合并」。
 - **核心逻辑类**：`agent_loop.py`、`ga.py`、`agentmain.py` 等冲突点逐文件人工判断，不影响慧惠定制的前提下吸收上游修复。
+
+## 八、阶段 2 合并执行实录
+
+> 分支：`integration/upstream-merge`；合并提交：`b24f96c`；预期冲突文件 113，实测需裁决 48。
+
+### 8.1 冲突裁决统计
+
+| 裁决类型 | 数量 | 代表文件 |
+|:---|:---|:---|
+| **取上游（theirs）** | 13 | `pyproject.toml`、`memory/ui_detect.py`、`.gitignore`、`memory/vision_api.template.py` 等 |
+| **取本地（ours）** | 13＋14 | `agentmain.py`、`llmcore.py`、`assets/tools_schema.json`、`TMWebDriver.py`、`hub.pyw`、`memory/keychain.py` 等 |
+| **文本合并** | 8 | `agent_loop.py`、`ga.py`、`assets/sys_prompt.txt`、`memory/*.md` 等 |
+
+### 8.2 关键取舍（慧惠定制保全）
+
+- `agentmain.py` **取本地**：保留 `class GeneraticAgent`（慧惠全部前端 `dingtalkapp.py`/`fsapp.py`/`wechatapp.py`/`stapp.py`/`tgapp.py`/`dcapp.py`/`qtapp.py`/`qqapp.py` 等均 `from agentmain import GeneraticAgent`）。
+- `llmcore.py` **取本地**：保留 `reload_mykeys()` / `mykeys` 全局及 `ToolClient`/`ClaudeSession`/`NativeClaudeSession` 等会话类，慧惠密钥重载与多模型会话依赖其 API。
+- `assets/tools_schema.json` **取本地**：保留慧惠自研工具协议（如 `code_run` 的 `inline_eval`/`cwd` 字段）。
+- `TMWebDriver.py` / `hub.pyw` / `memory/keychain.py` / `reflect/scheduler.py` / `memory/compress_session.py` 等核心运行态文件**取本地**，避免上游重构破坏运行环境。
+- 上游纯新增（无冲突）部分全部吸收：`frontends/desktop/`（Tauri 桌面）、`ga_cli/`、`plugins/`、`docs/`、`frontends/tests/` 等。
+
+### 8.3 回归验证
+
+| 检查 | 结果 |
+|:---|:---|
+| `python -m py_compile agentmain.py llmcore.py agent_loop.py ga.py` | ✅ 通过 |
+| `assets/tools_schema.json` JSON 合法 | ✅ 通过 |
+| 无残留冲突标记（`<<<<<<<` / `>>>>>>>`） | ✅ 通过 |
+| `from agentmain import GeneraticAgent` 符号存在 | ✅ 通过 |
+| 工作区 `git status` 干净 | ✅ 通过 |
+
+> **未执行**：`frontends/tests/` 完整 pytest 套件（涉及 `requirements.txt` 依赖与真实桥接环境），待阶段 3 改动收窄后补齐。
