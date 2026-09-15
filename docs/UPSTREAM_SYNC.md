@@ -130,7 +130,7 @@ memory/mem_scanner_sop.md
 | 0 备份冻结 | `--mirror` 镜像 + 打 tag `huihui-pre-sync-*` | 待办 |
 | 1 诊断 | 本实录 | ✅ 完成 |
 | 2 一次性对齐 | `integration/` 分支 `git merge upstream/main --no-ff` | ✅ 完成（`b24f96c`） |
-| 3 改动收窄 | 定制下沉至 `huihui/`、`wuxing/` 等独立目录 | **建议优先** |
+| 3 改动收窄 | 定制下沉至独立目录 + 品牌分离 + 治理清单 | ✅ 完成（务实收窄） |
 | 4 双轨 SLA | `main`≈上游 / `huihui`=全定制 | 待办 |
 | 6 自动化 | `tools/sync-upstream.ps1` + GitHub Actions 漂移提醒 | 待办 |
 
@@ -176,3 +176,45 @@ memory/mem_scanner_sop.md
 | 工作区 `git status` 干净 | ✅ 通过 |
 
 > **未执行**：`frontends/tests/` 完整 pytest 套件（涉及 `requirements.txt` 依赖与真实桥接环境），待阶段 3 改动收窄后补齐。
+
+## 九、阶段 3 改动收窄（务实收窄）
+
+> 原则：**外挂增强，不改核心**。本次只做低风险、高价值的收窄，不重构深度定制的核心文件。
+
+### 9.1 本次动作
+
+- **品牌分离**：`README.md` 保持上游原版零 diff（未来 merge 无冲突）；新增 `HUIHUI.md` 承载慧惠差异说明（自有新增，上游永不触碰）。
+- **安全清理**：删除泄漏明文 DeepSeek API key 的 `testDS.py`、调试快照 `check3_full.txt`、`test_reports/` 6 个测试产物。
+- **目录归位**：`requst/`（拼写错误）→ `docs/requirements/`。
+
+### 9.2 零冲突资产清单（上游不碰 · 未来 merge 自动无冲突）
+
+| 资产 | 说明 |
+|:---|:---|
+| `core/` | soul 人格基线（`soul.py` / `soul_prompts.py` / `scenario_matcher.py` / `initializer.py`） |
+| `skills/` | 五行流转引擎（五模块 + `skill_registry.py` + `root_auditor.py`） |
+| `algorithms/` | 五行算法（`pzhongshu_analyzer.py` / `integration.py`） |
+| `plugins/hooks.py`、`plugins/project_mode.py` | 慧惠自有插件 |
+| `launch_huihui.pyw`、`huihui_initialized.flag` | 专属启动入口与标识 |
+| `prompts/`、`tools/` | 场景数据、道境提取工具 |
+| `HUIHUI.md`、`docs/requirements/` | 品牌文档与需求文档 |
+| 顶层 `verify_*.py` / `skill_crystallization_test.py` | 慧惠自有回归脚本 |
+
+### 9.3 冲突热点清单（未来 merge 必撞 · 裁决固定为「取本地 ours」）
+
+> 这些文件是慧惠对上游核心的深度定制，未来任何 merge 都优先保留本地版本，上游同文件的改进按需手动 cherry-pick 吸收。
+
+| 文件 | 冲突原因 |
+|:---|:---|
+| `agentmain.py` | `from core.soul_prompts import inject_soul_prompt` + `class GeneraticAgent` + `load_llm_sessions` 密钥逻辑 |
+| `llmcore.py` | 双方独立重造模型层（`reload_mykeys` / 会话类） |
+| `hub.pyw`、`launch.pyw` | 入口职责重造 |
+| `TMWebDriver.py`、`simphtml.py` | 浏览器 / HTML 工具双边改 |
+| `assets/sys_prompt.txt`、`assets/tools_schema.json` | 提示词与工具协议 |
+| `memory/keychain.py`、`memory/ui_detect.py` | 记忆/凭据双造 |
+
+### 9.4 收窄规范（未来新增能力时遵循）
+
+1. **加文件不改文件**：新能力优先落在 `plugins/`、`skills/`、`core/` 等独立目录，或新增钩子，禁止直接改上游核心文件。
+2. 必须改核心时，先在 [UPSTREAM_TRIAGE.md](E:/00-FunctionalMonism/04-五行/10-solution/10-分叉治理/UPSTREAM_TRIAGE.md) 补一条分诊记录，标注「冲突热点」。
+3. 品牌/README 类每次 merge 固定「取本地」，差异写进 `HUIHUI.md` 而非侵占上游 README。
