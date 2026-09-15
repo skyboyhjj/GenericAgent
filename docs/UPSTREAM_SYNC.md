@@ -131,8 +131,8 @@ memory/mem_scanner_sop.md
 | 1 诊断 | 本实录 | ✅ 完成 |
 | 2 一次性对齐 | `integration/` 分支 `git merge upstream/main --no-ff` | ✅ 完成（`b24f96c`） |
 | 3 改动收窄 | 定制下沉至独立目录 + 品牌分离 + 治理清单 | ✅ 完成（务实收窄） |
-| 4 双轨 SLA | `main`≈上游 / `huihui`=全定制 | 待办 |
-| 6 自动化 | `tools/sync-upstream.ps1` + GitHub Actions 漂移提醒 | 待办 |
+| 4 双轨 SLA | `main`≈上游 / `huihui`=全定制 | ✅ 完成 |
+| 6 自动化 | `tools/sync-upstream.ps1` + GitHub Actions 漂移提醒 | ✅ 完成（脚本；CI 待 token `workflow` scope） |
 
 ## 六、验证方式
 
@@ -218,3 +218,49 @@ memory/mem_scanner_sop.md
 1. **加文件不改文件**：新能力优先落在 `plugins/`、`skills/`、`core/` 等独立目录，或新增钩子，禁止直接改上游核心文件。
 2. 必须改核心时，先在 [UPSTREAM_TRIAGE.md](E:/00-FunctionalMonism/04-五行/10-solution/10-分叉治理/UPSTREAM_TRIAGE.md) 补一条分诊记录，标注「冲突热点」。
 3. 品牌/README 类每次 merge 固定「取本地」，差异写进 `HUIHUI.md` 而非侵占上游 README。
+
+## 十、阶段 4 双轨 SLA（vendor branch 重塑）
+
+> 目标：`main` = 上游镜像（未来 sync 零冲突）；`huihui` = 全部慧惠定制（发布/部署分支）。
+> 执行日：2026-09-15。
+
+### 10.1 重塑后分支拓扑
+
+| 分支 | 角色 | tip | 说明 |
+|:---|:---|:---|:---|
+| `main` | 上游镜像 | `c68fa07` | = `upstream/main`(`1b6442f`) + 剥离 CI workflow 的提交 |
+| `huihui` | 全定制 | `f137aa4` | 由 `integration/upstream-merge` 重命名而来，含全部 410+ 慧惠提交 |
+| `upstream/main` | 上游 | `1b6442f` | 上游较诊断时（`86171ae`）已前进 3 个提交 |
+
+### 10.2 关键动作
+
+- `git branch -m integration/upstream-merge huihui` → `git push -u origin huihui`；删除远端 `integration/upstream-merge`。
+- `git reset --hard upstream/main` → `git push --force origin main`，`main` 与上游对齐。
+- 备份 tag `huihui-pre-sync-20260912` 指向 `4ea7e5d`（阶段 0 冻结点），回退命令 `git push --force origin 4ea7e5d:main`。
+
+### 10.3 已知约束：token 无 `workflow` scope
+
+上游 `main` 自带 `.github/workflows/desktop-ci.yml`、`desktop-release-package.yml`，当前 token 无 `workflow` 权限，无法推送工作流文件。故 `main` 镜像 = 上游内容 **剥离这 2 个 CI 文件**（提交 `c68fa07`）。该剥离逻辑已固化进同步脚本（见 §十一）。
+
+## 十一、阶段 6 自动化（双轨同步脚本）
+
+### 11.1 脚本
+
+新增 `tools/sync-upstream.ps1`。用法：
+
+```powershell
+powershell -NoProfile -File tools/sync-upstream.ps1
+```
+
+流程：
+
+1. `git fetch upstream --prune`。
+2. 计算 `main...upstream/main` 的 ahead/behind 并彩字输出。
+3. `behind=0` → 提示已最新并退出。
+4. `behind>0` → `main`：`reset --hard upstream/main` → 剥离 `.github/workflows/*` → `push --force origin main`。
+5. `huihui`：`git merge main --no-ff`；冲突则提示「解决后 `git add -A; git commit`」并 `exit 1`。
+6. `git push origin huihui`。
+
+### 11.2 CI 漂移提醒（待启用）
+
+本次不创建 `.github/workflows/upstream-drift.yml`（token 无 `workflow` scope）。启用前提：token 补充 `workflow` scope 后，新增一个按周期检查 `upstream/main` 领先并告警的 workflow 即可。
