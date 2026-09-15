@@ -229,7 +229,7 @@ memory/mem_scanner_sop.md
 | 分支 | 角色 | tip | 说明 |
 |:---|:---|:---|:---|
 | `main` | 上游镜像 | `c68fa07` | = `upstream/main`(`1b6442f`) + 剥离 CI workflow 的提交 |
-| `huihui` | 全定制 | `f137aa4` | 由 `integration/upstream-merge` 重命名而来，含全部 410+ 慧惠提交 |
+| `huihui` | 全定制 | `2590944` | 由 `integration/upstream-merge` 重命名而来；已 merge `upstream/main`（方案 A 裁决） |
 | `upstream/main` | 上游 | `1b6442f` | 上游较诊断时（`86171ae`）已前进 3 个提交 |
 
 ### 10.2 关键动作
@@ -264,3 +264,14 @@ powershell -NoProfile -File tools/sync-upstream.ps1
 ### 11.2 CI 漂移提醒（待启用）
 
 本次不创建 `.github/workflows/upstream-drift.yml`（token 无 `workflow` scope）。启用前提：token 补充 `workflow` scope 后，新增一个按周期检查 `upstream/main` 领先并告警的 workflow 即可。
+
+### 11.3 首次同步执行实录（2026-09-15）
+
+`git merge --no-ff upstream/main` 吸收上游 3 个提交（`1b6442f`/`f07bfc5`/`96be945`），实测冲突 2 文件：
+
+| 文件 | 冲突来源 | 裁决 |
+|:---|:---|:---|
+| `agentmain.py` | `f07bfc5` abort() 一方删除/一方改写「强制唤醒 recv()」块 | **取本地 ours**（丢弃 `_INFLIGHT` 机制，保留简化版 `abort()`） |
+| `llmcore.py` | `f07bfc5` 顶部 `_INFLIGHT`/urllib3 钩子 + `_stream_with_retry` 加 `sess._tid` | **取本地 ours**（慧惠已 generator 重造模型层，无 `active_response`，机制不适用） |
+
+吸收成功的：`1b6442f`（`ga.py`、`assets/insight_fixed_structure{,_en}.txt` 提示词收敛）、`96be945`（`memory/vision_sop.md` 视觉后端文档）。合并提交 `2590944`，`core/`、`skills/`、`algorithms/` 等慧惠零冲突资产未受影响，核心模块 `py_compile` 通过。
