@@ -127,7 +127,7 @@ memory/mem_scanner_sop.md
 
 | 阶段 | 动作 | 状态 |
 |:---|:---|:---|
-| 0 备份冻结 | `--mirror` 镜像 + 打 tag `huihui-pre-sync-*` | 待办 |
+| 0 备份冻结 | `--mirror` 镜像 + 打 tag `huihui-pre-sync-*` | ✅ 完成（tag `huihui-pre-sync-20260912` → `4ea7e5d`） |
 | 1 诊断 | 本实录 | ✅ 完成 |
 | 2 一次性对齐 | `integration/` 分支 `git merge upstream/main --no-ff` | ✅ 完成（`b24f96c`） |
 | 3 改动收窄 | 定制下沉至独立目录 + 品牌分离 + 治理清单 | ✅ 完成（务实收窄） |
@@ -216,7 +216,7 @@ memory/mem_scanner_sop.md
 ### 9.4 收窄规范（未来新增能力时遵循）
 
 1. **加文件不改文件**：新能力优先落在 `plugins/`、`skills/`、`core/` 等独立目录，或新增钩子，禁止直接改上游核心文件。
-2. 必须改核心时，先在 [UPSTREAM_TRIAGE.md](E:/00-FunctionalMonism/04-五行/10-solution/10-分叉治理/UPSTREAM_TRIAGE.md) 补一条分诊记录，标注「冲突热点」。
+2. 必须改核心时，先在 [docs/UPSTREAM_TRIAGE.md](./UPSTREAM_TRIAGE.md) 补一条分诊记录，标注「冲突热点」。
 3. 品牌/README 类每次 merge 固定「取本地」，差异写进 `HUIHUI.md` 而非侵占上游 README。
 
 ## 十、阶段 4 双轨 SLA（vendor branch 重塑）
